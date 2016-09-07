@@ -4,8 +4,8 @@ describe Sequel::Postgres::MultiTenant::DatabaseExtension do
 
   before do
     DB.create_tenant :test_database
-    MIGRATOR.migrate_tenant :test_database
     assert_equal [:test_database], DB.tenants
+    MIGRATOR.migrate_tenant :test_database
   end
 
   after do

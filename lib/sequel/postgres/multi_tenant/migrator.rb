@@ -18,10 +18,12 @@ module Sequel
         end
 
         def migrate_tenant(tenant, options={})
-          search_path = db.search_path
-          db.search_path = tenant
-          run File.join(migrations_path, TENANTS_PATH), options
-          db.search_path = search_path
+          db.synchronize do
+            search_path = db.search_path
+            db.search_path = tenant
+            run File.join(migrations_path, TENANTS_PATH), options
+            db.search_path = search_path
+          end
         end
 
         def migrate_tenants(options={})

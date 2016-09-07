@@ -5,9 +5,8 @@ describe Sequel::Postgres::MultiTenant::Model do
   before do
     DB.create_tenant :test_model_1
     DB.create_tenant :test_model_2
-    binding.pry
-    MIGRATOR.migrate_tenants
     assert_equal [:test_model_1, :test_model_2], DB.tenants
+    MIGRATOR.migrate_tenants
   end
 
   after do
@@ -43,13 +42,11 @@ describe Sequel::Postgres::MultiTenant::Model do
 
     threads.each(&:join)
 
-    DB.tenants.each do |tenant|
-      DB.using_tenant tenant do
-        expected_data = 1.upto(10).map { |i| {country: "Country (#{tenant}/#{i})", city: "City (#{tenant}/#{i})"} }
-        actual_data = City.eager(:country).all.map { |c| {city: c.name, country: c.country.name} }
+    DB.using_each_tenant do |tenant|
+      expected_data = 1.upto(10).map { |i| {country: "Country (#{tenant}/#{i})", city: "City (#{tenant}/#{i})"} }
+      actual_data = City.eager(:country).all.map { |c| {city: c.name, country: c.country.name} }
 
-        assert_equal expected_data, actual_data
-      end
+      assert_equal expected_data, actual_data
     end
   end
 
