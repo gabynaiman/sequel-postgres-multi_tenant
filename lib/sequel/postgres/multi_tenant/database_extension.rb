@@ -30,11 +30,15 @@ module Sequel
         end
 
         def using_tenant(tenant)
-          current = current_tenant
-          self.current_tenant = tenant
-          yield
-        ensure
-          self.current_tenant = current
+          synchronize do
+            begin
+              current = current_tenant
+              self.current_tenant = tenant
+              yield
+            ensure
+              self.current_tenant = current
+            end
+          end
         end
 
         def using_each_tenant

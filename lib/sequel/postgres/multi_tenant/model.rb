@@ -19,11 +19,21 @@ module Sequel
           db.reload_dataset self
         end
 
+        def self.set_dataset(*args)
+          super
+          self.simple_table = nil
+        end
+
         def self.eager(*args, &block)
           association_reflections.each_value do |assoc|
             assoc[:cache].clear if assoc.key? :cache
           end
           super
+        end
+
+        def self.finder_for(meth)
+          finder_loader = @finder_loaders.fetch(meth)
+          finder_loader.call(self)
         end
 
       end
